@@ -33,6 +33,17 @@ func (schema *Schema) GetField(name string) *Field {
 	return schema.fieldMap[name]
 }
 
+// RecordValues according to the order of the columns in the database,
+// find the corresponding value from the object and tile it in order
+func (schema *Schema) RecordValues(dst any) []any {
+	dstValue := reflect.Indirect(reflect.ValueOf(dst))
+	var fieldValues []any
+	for _, field := range schema.Fields {
+		fieldValues = append(fieldValues, dstValue.FieldByName(field.Name).Interface())
+	}
+	return fieldValues
+}
+
 // Parse parses any object into Schema instance
 func Parse(dst any, d dialect.Dialect) *Schema {
 	// get the instance pointed to by the pointer through Indirect()

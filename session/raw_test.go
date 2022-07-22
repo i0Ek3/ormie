@@ -25,7 +25,7 @@ func NewSession() *Session {
 	return New(TestDB, TestDial)
 }
 
-func TestSession_Exec(t *testing.T) {
+func TestSessionExec(t *testing.T) {
 	s := NewSession()
 	_, _ = s.Raw("DROP TABLE IF EXISTS User;").Exec()
 	_, _ = s.Raw("CREATE TABLE User(Name text);").Exec()
@@ -35,7 +35,7 @@ func TestSession_Exec(t *testing.T) {
 	}
 }
 
-func TestSession_QueryRows(t *testing.T) {
+func TestSessionQuery(t *testing.T) {
 	s := NewSession()
 	_, _ = s.Raw("DROP TABLE IF EXISTS User;").Exec()
 	_, _ = s.Raw("CREATE TABLE User(Name text);").Exec()

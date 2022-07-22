@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/i0Ek3/ormie/clause"
 	"github.com/i0Ek3/ormie/dialect"
 	"github.com/i0Ek3/ormie/log"
 	"github.com/i0Ek3/ormie/schema"
@@ -15,6 +16,7 @@ type Session struct {
 	db       *sql.DB
 	dialect  dialect.Dialect
 	refTable *schema.Schema
+	clause   clause.Clause
 	// sql used to concatenate SQL Statements
 	sql strings.Builder
 	// sqlVars is the corresponding value of
@@ -32,6 +34,7 @@ func New(db *sql.DB, dialect dialect.Dialect) *Session {
 func (s *Session) Clear() {
 	s.sql.Reset()
 	s.sqlVars = nil
+	s.clause = clause.Clause{}
 }
 
 func (s *Session) DB() *sql.DB {
