@@ -1,6 +1,7 @@
 package session
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/i0Ek3/ormie/clause"
@@ -57,4 +58,73 @@ func (s *Session) Find(values any) error {
 		dstSlice.Set(reflect.Append(dstSlice, dst))
 	}
 	return rows.Close()
+}
+
+func (s *Session) Update(kv ...any) (int64, error) {
+	// assert m whether it is a map
+	m, ok := kv[0].(map[string]any)
+	// if not, convert m into flatten key-value pair
+	if !ok {
+		m = make(map[string]any)
+		for i := 0; i < len(kv); i += 2 {
+			m[kv[i].(string)] = kv[i+1]
+		}
+	}
+	s.clause.Set(clause.UPDATE, s.RefTable().Name, m)
+	sql, vars := s.clause.Build(clause.UPDATE, clause.WHERE)
+	result, err := s.Raw(sql, vars...).Exec()
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (s *Session) Delete() (int64, error) {
+	s.clause.Set(clause.DELETE, s.RefTable().Name)
+	sql, vars := s.clause.Build(clause.DELETE, clause.WHERE)
+	result, err := s.Raw(sql, vars...).Exec()
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+func (s *Session) Count() (int64, error) {
+	s.clause.Set(clause.COUNT, s.RefTable().Name)
+	sql, vars := s.clause.Build(clause.COUNT, clause.WHERE)
+	row := s.Raw(sql, vars...).QueryRow()
+	var tmp int64
+	if err := row.Scan(&tmp); err != nil {
+		return 0, err
+	}
+	return tmp, nil
+}
+
+func (s *Session) Limit(num int) *Session {
+	s.clause.Set(clause.LIMIT, num)
+	return s
+}
+
+func (s *Session) Where(desc string, args ...any) *Session {
+	var vars []any
+	s.clause.Set(clause.WHERE, append(append(vars, desc), args...)...)
+	return s
+}
+
+func (s *Session) OrderBy(desc string) *Session {
+	s.clause.Set(clause.ORDERBY, desc)
+	return s
+}
+
+func (s *Session) First(value any) error {
+	dst := reflect.Indirect(reflect.ValueOf(value))
+	dstSlice := reflect.New(reflect.SliceOf(dst.Type())).Elem()
+	if err := s.Limit(1).Find(dstSlice.Addr().Interface()); err != nil {
+		return err
+	}
+	if dstSlice.Len() == 0 {
+		return errors.New("not found")
+	}
+	dst.Set(dstSlice.Index(0))
+	return nil
 }
