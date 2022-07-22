@@ -3,15 +3,18 @@ package ormie
 import (
 	"database/sql"
 
+	"github.com/i0Ek3/ormie/dialect"
 	"github.com/i0Ek3/ormie/log"
 	"github.com/i0Ek3/ormie/session"
 )
 
 type Engine struct {
-	db *sql.DB
+	db      *sql.DB
+	dialect dialect.Dialect
 }
 
-// NewEngine connects the database and checks if it alive
+// NewEngine connects the database and checks if it alive, and also get
+// the dialect corresponding to the driver
 func NewEngine(driver string, src string) (e *Engine, err error) {
 	db, err := sql.Open(driver, src)
 	if err != nil {
@@ -22,7 +25,15 @@ func NewEngine(driver string, src string) (e *Engine, err error) {
 		log.Error(err)
 		return
 	}
-	e = &Engine{db: db}
+	dial, ok := dialect.GetDialect(driver)
+	if !ok {
+		log.Errorf("dialect %s not found", driver)
+		return
+	}
+	e = &Engine{
+		db:      db,
+		dialect: dial,
+	}
 	log.Info("Database connected")
 	return
 }
@@ -35,6 +46,7 @@ func (e *Engine) Close() {
 }
 
 // NewSession creates session instance used to interact with database
+// and then pass dialect to constructor New()
 func (e *Engine) NewSession() *session.Session {
-	return session.New(e.db)
+	return session.New(e.db, e.dialect)
 }

@@ -4,13 +4,17 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/i0Ek3/ormie/dialect"
 	"github.com/i0Ek3/ormie/log"
+	"github.com/i0Ek3/ormie/schema"
 )
 
 type Session struct {
 	// db is the pointer returned after the Sql.Open()
 	// method successfully connects to the database
-	db *sql.DB
+	db       *sql.DB
+	dialect  dialect.Dialect
+	refTable *schema.Schema
 	// sql used to concatenate SQL Statements
 	sql strings.Builder
 	// sqlVars is the corresponding value of
@@ -18,8 +22,11 @@ type Session struct {
 	sqlVars []any
 }
 
-func New(db *sql.DB) *Session {
-	return &Session{db: db}
+func New(db *sql.DB, dialect dialect.Dialect) *Session {
+	return &Session{
+		db:      db,
+		dialect: dialect,
+	}
 }
 
 func (s *Session) Clear() {
