@@ -2,6 +2,7 @@ package ormie
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/i0Ek3/ormie/session"
@@ -34,7 +35,7 @@ func transactionRollback(t *testing.T) {
 	_ = s.Model(&User{}).DropTable()
 	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
 		_ = s.Model(&User{}).CreateTable()
-		_, err = s.Insert(&User{"Tom", 18})
+		_, _ = s.Insert(&User{"Tom", 18})
 		return nil, errors.New("Error")
 	})
 	if err == nil || s.HasTable() {
@@ -66,4 +67,20 @@ func TestEngineTransaction(t *testing.T) {
 	t.Run("commit", func(t *testing.T) {
 		transactionCommit(t)
 	})
+}
+
+func TestEngineMigrate(t *testing.T) {
+	engine := OpenDB(t)
+	defer engine.Close()
+	s := engine.NewSession()
+	_, _ = s.Raw("DROP TABLE IF EXISTS User;").Exec()
+	_, _ = s.Raw("CREATE TABLE User(Name text PRIMARY KEY, XXX integer);").Exec()
+	_, _ = s.Raw("INSERT INTO User(`Name`) values (?), (?)", "Tom", "Sam").Exec()
+	engine.Migrate(&User{})
+
+	rows, _ := s.Raw("SELECT * FROM User").Query()
+	columns, _ := rows.Columns()
+	if !reflect.DeepEqual(columns, []string{"Name", "Age"}) {
+		t.Fatal("Failed to migrate table User, got columns", columns)
+	}
 }

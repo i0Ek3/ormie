@@ -1,6 +1,6 @@
 # ormie
 
-`ormie` is a simple ORM framework.
+`ormie` is a simple ORM framework for learning the fundamentals of ORM frameworks.
 
 ## Feature
 
