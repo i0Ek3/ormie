@@ -22,12 +22,15 @@ type Session struct {
 	// sqlVars is the corresponding value of
 	// the placeholder in the SQL statemen
 	sqlVars []any
+	// hookGraceful denotes which method to use for hooking
+	hookGraceful bool
 }
 
-func New(db *sql.DB, dialect dialect.Dialect) *Session {
+func New(db *sql.DB, dialect dialect.Dialect, hookGraceful bool) *Session {
 	return &Session{
-		db:      db,
-		dialect: dialect,
+		db:           db,
+		dialect:      dialect,
+		hookGraceful: true,
 	}
 }
 
@@ -35,6 +38,7 @@ func (s *Session) Clear() {
 	s.sql.Reset()
 	s.sqlVars = nil
 	s.clause = clause.Clause{}
+	s.hookGraceful = false
 }
 
 func (s *Session) DB() *sql.DB {

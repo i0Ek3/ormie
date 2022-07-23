@@ -11,6 +11,7 @@ import (
 func (s *Session) Insert(values ...any) (int64, error) {
 	recordValues := make([]any, 0)
 	for _, value := range values {
+		s.CallMethod(BeforeInsert, value)
 		table := s.Model(value).RefTable()
 		s.clause.Set(clause.INSERT, table.Name, table.FieldNames)
 		recordValues = append(recordValues, table.RecordValues(value))
@@ -22,11 +23,13 @@ func (s *Session) Insert(values ...any) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	s.CallMethod(AfterInsert, "")
 	return result.RowsAffected()
 }
 
 // Find constructs an object from the values ​​of the flattened fields
 func (s *Session) Find(values any) error {
+	s.CallMethod(BeforeQuery, "")
 	dstSlice := reflect.Indirect(reflect.ValueOf(values))
 	// get the type of a single element of a slice
 	dstType := dstSlice.Type().Elem()
@@ -55,12 +58,14 @@ func (s *Session) Find(values any) error {
 		if err := rows.Scan(values...); err != nil {
 			return err
 		}
+		s.CallMethod(AfterQuery, dst.Addr().Interface())
 		dstSlice.Set(reflect.Append(dstSlice, dst))
 	}
 	return rows.Close()
 }
 
 func (s *Session) Update(kv ...any) (int64, error) {
+	s.CallMethod(BeforeUpdate, "")
 	// assert m whether it is a map
 	m, ok := kv[0].(map[string]any)
 	// if not, convert m into flatten key-value pair
@@ -76,16 +81,19 @@ func (s *Session) Update(kv ...any) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	s.CallMethod(AfterUpdate, "")
 	return result.RowsAffected()
 }
 
 func (s *Session) Delete() (int64, error) {
+	s.CallMethod(BeforeDelete, "")
 	s.clause.Set(clause.DELETE, s.RefTable().Name)
 	sql, vars := s.clause.Build(clause.DELETE, clause.WHERE)
 	result, err := s.Raw(sql, vars...).Exec()
 	if err != nil {
 		return 0, err
 	}
+	s.CallMethod(AfterDelete, "")
 	return result.RowsAffected()
 }
 

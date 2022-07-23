@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 }
 
 func NewSession() *Session {
-	return New(TestDB, TestDial)
+	return New(TestDB, TestDial, true)
 }
 
 func TestSessionExec(t *testing.T) {
