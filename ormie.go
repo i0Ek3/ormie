@@ -9,8 +9,9 @@ import (
 )
 
 type Engine struct {
-	db      *sql.DB
-	dialect dialect.Dialect
+	db           *sql.DB
+	dialect      dialect.Dialect
+	hookGraceful bool
 }
 
 // NewEngine connects the database and checks if it alive, and also get
@@ -48,5 +49,30 @@ func (e *Engine) Close() {
 // NewSession creates session instance used to interact with database
 // and then pass dialect to constructor New()
 func (e *Engine) NewSession() *session.Session {
-	return session.New(e.db, e.dialect)
+	return session.New(e.db, e.dialect, e.hookGraceful)
+}
+
+type TxFunc func(*session.Session) (any, error)
+
+func (e *Engine) Transaction(f TxFunc) (result any, err error) {
+	s := e.NewSession()
+	if err := s.Begin(); err != nil {
+		return nil, err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			_ = s.Rollback()
+			panic(p)
+		} else if err != nil {
+			_ = s.Rollback()
+		} else {
+			defer func() {
+				if err != nil {
+					_ = s.Rollback()
+				}
+			}()
+			err = s.Commit()
+		}
+	}()
+	return f(s)
 }

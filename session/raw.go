@@ -13,8 +13,10 @@ import (
 type Session struct {
 	// db is the pointer returned after the Sql.Open()
 	// method successfully connects to the database
-	db       *sql.DB
-	dialect  dialect.Dialect
+	db      *sql.DB
+	dialect dialect.Dialect
+	// transaction
+	tx       *sql.Tx
 	refTable *schema.Schema
 	clause   clause.Clause
 	// sql used to concatenate SQL Statements
@@ -41,7 +43,19 @@ func (s *Session) Clear() {
 	s.hookGraceful = false
 }
 
-func (s *Session) DB() *sql.DB {
+type CommonDB interface {
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
+}
+
+var _ CommonDB = (*sql.DB)(nil)
+var _ CommonDB = (*sql.Tx)(nil)
+
+func (s *Session) DB() CommonDB {
+	if s.tx != nil {
+		return s.tx
+	}
 	return s.db
 }
 

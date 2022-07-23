@@ -44,13 +44,24 @@ func (schema *Schema) RecordValues(dst any) []any {
 	return fieldValues
 }
 
+type ITableName interface {
+	TableName() string
+}
+
 // Parse parses any object into Schema instance
 func Parse(dst any, d dialect.Dialect) *Schema {
 	// get the instance pointed to by the pointer through Indirect()
 	modelType := reflect.Indirect(reflect.ValueOf(dst)).Type()
+	var tableName string
+	t, ok := dst.(ITableName)
+	if !ok {
+		tableName = modelType.Name()
+	} else {
+		tableName = t.TableName()
+	}
 	schema := &Schema{
 		Model:    dst,
-		Name:     modelType.Name(),
+		Name:     tableName,
 		fieldMap: make(map[string]*Field),
 	}
 

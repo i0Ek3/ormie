@@ -11,14 +11,18 @@ import (
 )
 
 func main() {
-    fmt.Println("---------------------------")
-    fmt.Println("sqlUsage()")
-    fmt.Println("---------------------------")
+	fmt.Println("---------------------------")
+	fmt.Println("sqlUsage()")
+	fmt.Println("---------------------------")
 	sqlUsage()
-    fmt.Println("---------------------------")
-    fmt.Println("ormieTest()")
-    fmt.Println("---------------------------")
+	fmt.Println("---------------------------")
+	fmt.Println("ormieTest()")
+	fmt.Println("---------------------------")
 	ormieTest()
+	fmt.Println("---------------------------")
+	fmt.Println("tx()")
+	fmt.Println("---------------------------")
+	tx()
 }
 
 func ormieTest() {
@@ -55,5 +59,22 @@ func sqlUsage() {
 	var name string
 	if err := row.Scan(&name); err == nil {
 		log.Println(name)
+	}
+}
+
+func tx() {
+	db, _ := sql.Open("sqlite3", "ormie.db")
+	defer func() { _ = db.Close() }()
+	_, _ = db.Exec("CREATE TABLE IF NOT EXISTS User(`Name` text);")
+
+	tx, _ := db.Begin()
+	_, err1 := tx.Exec("INSERT INTO User(`Name`) VALUES (?)", "Tom")
+	_, err2 := tx.Exec("INSERT INTO User(`Name`) VALUES (?)", "Jack")
+	if err1 != nil || err2 != nil {
+		_ = tx.Rollback()
+		log.Println("Rollback", err1, err2)
+	} else {
+		_ = tx.Commit()
+		log.Println("Commit")
 	}
 }
