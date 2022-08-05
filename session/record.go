@@ -27,11 +27,11 @@ func (s *Session) Insert(values ...any) (int64, error) {
 	return result.RowsAffected()
 }
 
-// Find constructs an object from the values ​​of the flattened fields
+// Find constructs an object from the values of the flattened fields
 func (s *Session) Find(values any) error {
 	s.CallMethod(BeforeQuery, "")
 	dstSlice := reflect.Indirect(reflect.ValueOf(values))
-	// get the type of a single element of a slice
+	// get the type of single element of a slice
 	dstType := dstSlice.Type().Elem()
 	// Model according given parameters mapped out table structure by RefTable()
 	table := s.Model(reflect.New(dstType).Elem().Interface()).RefTable()
@@ -54,7 +54,7 @@ func (s *Session) Find(values any) error {
 			values = append(values, dst.FieldByName(name).Addr().Interface())
 		}
 		// assign the value of each column of the
-		// row record to each field in values ​​in turn
+		// row record to each field in values in turn
 		if err := rows.Scan(values...); err != nil {
 			return err
 		}

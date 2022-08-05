@@ -102,7 +102,7 @@ func (s *Session) CallMethod(method string, value any) {
 				i.BeforeUpdate(s)
 			}
 		default:
-			panic("Unsupported hooks")
+			panic(any("Unsupported hooks"))
 		}
 		return
 	}

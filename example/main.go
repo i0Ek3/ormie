@@ -52,7 +52,7 @@ func sqlUsage() {
 		log.Println(affected)
 	}
 
-	// Query/QuerRow used to query SQL statements but the
+	// Query/QueryRow used to query SQL statements but the
 	// former can return multiple records, and the latter
 	// only returns one record which type is *sql.Row
 	row := db.QueryRow("SELECT Name FROM User LIMIT 1")

@@ -24,7 +24,7 @@ func TestNewEngine(t *testing.T) {
 }
 
 type User struct {
-	Name string `geeorm:"PRIMARY KEY"`
+	Name string `ormie:"PRIMARY KEY"`
 	Age  int
 }
 
@@ -36,7 +36,7 @@ func transactionRollback(t *testing.T) {
 	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, _ = s.Insert(&User{"Tom", 18})
-		return nil, errors.New("Error")
+		return nil, errors.New("error")
 	})
 	if err == nil || s.HasTable() {
 		t.Fatal("failed to rollback")

@@ -16,7 +16,7 @@ type Engine struct {
 	hookGraceful bool
 }
 
-// NewEngine connects the database and checks if it alive, and also get
+// NewEngine connects the database and checks if it is alive, and also get
 // the dialect corresponding to the driver
 func NewEngine(driver string, src string) (e *Engine, err error) {
 	db, err := sql.Open(driver, src)
@@ -62,7 +62,7 @@ func (e *Engine) Transaction(f TxFunc) (result any, err error) {
 		return nil, err
 	}
 	defer func() {
-		if p := recover(); p != nil {
+		if p := recover(); p != any(nil) {
 			_ = s.Rollback()
 			panic(p)
 		} else if err != nil {

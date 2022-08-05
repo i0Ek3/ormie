@@ -11,7 +11,7 @@ install_sqlite_then_import() {
     then
         sudo apt update ; sudo apt install -y sqlite3
     else
-        echo "Unsupport platform!"
+        echo "Unsupported platform!"
     fi
 }
 

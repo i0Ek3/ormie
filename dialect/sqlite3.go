@@ -8,6 +8,7 @@ import (
 
 type sqlite3 struct{}
 
+// this line used to check if *sqlite3 type implement Diablect interface
 var _ Dialect = (*sqlite3)(nil)
 
 func init() {
@@ -34,7 +35,8 @@ func (s *sqlite3) DataTypeOf(typ reflect.Value) string {
 			return "datetime"
 		}
 	}
-	panic(fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind()))
+	msg := fmt.Sprintf("invalid sql type %s (%s)", typ.Type().Name(), typ.Kind())
+	panic(any(msg))
 }
 
 func (s *sqlite3) TableExistSQL(tableName string) (string, []any) {

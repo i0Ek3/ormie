@@ -22,7 +22,7 @@ type Session struct {
 	// sql used to concatenate SQL Statements
 	sql strings.Builder
 	// sqlVars is the corresponding value of
-	// the placeholder in the SQL statemen
+	// the placeholder in the SQL statement
 	sqlVars []any
 	// hookGraceful denotes which method to use for hooking
 	hookGraceful bool
@@ -49,6 +49,7 @@ type CommonDB interface {
 	Exec(query string, args ...any) (sql.Result, error)
 }
 
+// this line used to check if *sql.DB/*sql.Tx type implement CommonDB interface
 var _ CommonDB = (*sql.DB)(nil)
 var _ CommonDB = (*sql.Tx)(nil)
 
