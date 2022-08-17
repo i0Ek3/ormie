@@ -71,35 +71,59 @@ func (s *Session) CallMethod(method string, value any) {
 		switch method {
 		case AfterQuery:
 			if i, ok := param.Interface().(IAfterQuery); ok {
-				i.AfterQuery(s)
+				err := i.AfterQuery(s)
+				if err != nil {
+					return
+				}
 			}
 		case BeforeQuery:
 			if i, ok := param.Interface().(IBeforeQuery); ok {
-				i.BeforeQuery(s)
+				err := i.BeforeQuery(s)
+				if err != nil {
+					return
+				}
 			}
 		case AfterInsert:
 			if i, ok := param.Interface().(IAfterInsert); ok {
-				i.AfterInsert(s)
+				err := i.AfterInsert(s)
+				if err != nil {
+					return
+				}
 			}
 		case BeforeInsert:
 			if i, ok := param.Interface().(IBeforeInsert); ok {
-				i.BeforeInsert(s)
+				err := i.BeforeInsert(s)
+				if err != nil {
+					return
+				}
 			}
 		case AfterDelete:
 			if i, ok := param.Interface().(IAfterDelete); ok {
-				i.AfterDelete(s)
+				err := i.AfterDelete(s)
+				if err != nil {
+					return
+				}
 			}
 		case BeforeDelete:
 			if i, ok := param.Interface().(IBeforeDelete); ok {
-				i.BeforeDelete(s)
+				err := i.BeforeDelete(s)
+				if err != nil {
+					return
+				}
 			}
 		case AfterUpdate:
 			if i, ok := param.Interface().(IAfterUpdate); ok {
-				i.AfterUpdate(s)
+				err := i.AfterUpdate(s)
+				if err != nil {
+					return
+				}
 			}
 		case BeforeUpdate:
 			if i, ok := param.Interface().(IBeforeUpdate); ok {
-				i.BeforeUpdate(s)
+				err := i.BeforeUpdate(s)
+				if err != nil {
+					return
+				}
 			}
 		default:
 			panic(any("Unsupported hooks"))
