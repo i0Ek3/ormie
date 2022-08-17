@@ -1,4 +1,4 @@
-package ormie
+package engine
 
 import (
 	"errors"
@@ -33,7 +33,7 @@ func transactionRollback(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, _ = s.Insert(&User{"Tom", 18})
 		return nil, errors.New("error")
@@ -48,7 +48,7 @@ func transactionCommit(t *testing.T) {
 	defer engine.Close()
 	s := engine.NewSession()
 	_ = s.Model(&User{}).DropTable()
-	_, err := engine.Transaction(func(s *session.Session) (result interface{}, err error) {
+	_, err := engine.Transaction(func(s *session.Session) (result any, err error) {
 		_ = s.Model(&User{}).CreateTable()
 		_, err = s.Insert(&User{"Tom", 18})
 		return

@@ -1,4 +1,4 @@
-package ormie
+package engine
 
 import (
 	"database/sql"

@@ -6,15 +6,12 @@
 
 - Migration
 - Chains operation
-- Primary key setting
 - Hooks
 - Transaction
-
 
 ## Usage
 
 Check usage example in folder example.
-
 
 ## Credit
 
