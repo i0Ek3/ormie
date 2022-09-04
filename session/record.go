@@ -24,6 +24,7 @@ func (s *Session) Insert(values ...any) (int64, error) {
 		return 0, err
 	}
 	s.CallMethod(AfterInsert, "")
+
 	return result.RowsAffected()
 }
 
@@ -31,29 +32,29 @@ func (s *Session) Insert(values ...any) (int64, error) {
 func (s *Session) Find(values any) error {
 	s.CallMethod(BeforeQuery, "")
 	dstSlice := reflect.Indirect(reflect.ValueOf(values))
-	// get the type of single element of a slice
+	// Get the type of single element of a slice
 	dstType := dstSlice.Type().Elem()
 	// Model according given parameters mapped out table structure by RefTable()
 	table := s.Model(reflect.New(dstType).Elem().Interface()).RefTable()
 
-	// according to the table structure, use clause to construct a SELECT statement
+	// According to the table structure, use clause to construct a SELECT statement
 	s.clause.Set(clause.SELECT, table.Name, table.FieldNames)
 	sql, vars := s.clause.Build(clause.SELECT, clause.WHERE, clause.ORDERBY, clause.LIMIT)
-	// query to all rows that meet the criteria
+	// Query to all rows that meet the criteria
 	rows, err := s.Raw(sql, vars...).Query()
 	if err != nil {
 		return err
 	}
-	// traverse each row of records
+	// Traverse each row of records
 	for rows.Next() {
-		// use reflection to create an instance dst of dstType
+		// Use reflection to create an instance dst of dstType
 		dst := reflect.New(dstType).Elem()
 		var values []any
-		// flatten all fields of dst, and construct slice values.
+		// Flatten all fields of dst, and construct slice values.
 		for _, name := range table.FieldNames {
 			values = append(values, dst.FieldByName(name).Addr().Interface())
 		}
-		// assign the value of each column of the
+		// Assign the value of each column of the
 		// row record to each field in values in turn
 		if err := rows.Scan(values...); err != nil {
 			return err
@@ -61,14 +62,15 @@ func (s *Session) Find(values any) error {
 		s.CallMethod(AfterQuery, dst.Addr().Interface())
 		dstSlice.Set(reflect.Append(dstSlice, dst))
 	}
+
 	return rows.Close()
 }
 
 func (s *Session) Update(kv ...any) (int64, error) {
 	s.CallMethod(BeforeUpdate, "")
-	// assert m whether it is a map
+	// Assert m whether it is a map
 	m, ok := kv[0].(map[string]any)
-	// if not, convert m into flatten key-value pair
+	// If not, convert m into flatten key-value pair
 	if !ok {
 		m = make(map[string]any)
 		for i := 0; i < len(kv); i += 2 {
@@ -82,6 +84,7 @@ func (s *Session) Update(kv ...any) (int64, error) {
 		return 0, err
 	}
 	s.CallMethod(AfterUpdate, "")
+
 	return result.RowsAffected()
 }
 
@@ -94,6 +97,7 @@ func (s *Session) Delete() (int64, error) {
 		return 0, err
 	}
 	s.CallMethod(AfterDelete, "")
+
 	return result.RowsAffected()
 }
 
@@ -105,22 +109,26 @@ func (s *Session) Count() (int64, error) {
 	if err := row.Scan(&tmp); err != nil {
 		return 0, err
 	}
+
 	return tmp, nil
 }
 
 func (s *Session) Limit(num int) *Session {
 	s.clause.Set(clause.LIMIT, num)
+
 	return s
 }
 
 func (s *Session) Where(desc string, args ...any) *Session {
 	var vars []any
 	s.clause.Set(clause.WHERE, append(append(vars, desc), args...)...)
+
 	return s
 }
 
 func (s *Session) OrderBy(desc string) *Session {
 	s.clause.Set(clause.ORDERBY, desc)
+
 	return s
 }
 
@@ -134,5 +142,6 @@ func (s *Session) First(value any) error {
 		return errors.New("not found")
 	}
 	dst.Set(dstSlice.Index(0))
+
 	return nil
 }

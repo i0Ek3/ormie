@@ -37,7 +37,8 @@ func NewEngine(driver string, src string) (e *Engine, err error) {
 		db:      db,
 		dialect: dial,
 	}
-	log.Info("Database connected")
+	log.Info("database connected")
+
 	return
 }
 
@@ -76,6 +77,7 @@ func (e *Engine) Transaction(f TxFunc) (result any, err error) {
 			err = s.Commit()
 		}
 	}()
+
 	return f(s)
 }
 
@@ -89,13 +91,13 @@ func findDiff(a []string, b []string) (diff []string) {
 			diff = append(diff, v)
 		}
 	}
+
 	return
 }
 
 // Migrate migrates the new fields into the new table and delete the old table
 func (e *Engine) Migrate(value any) error {
 	_, err := e.Transaction(func(s *session.Session) (result any, err error) {
-		//
 		if !s.Model(value).HasTable() {
 			log.Infof("table %s doesn't exist", s.RefTable().Name)
 			return nil, s.CreateTable()
@@ -103,14 +105,14 @@ func (e *Engine) Migrate(value any) error {
 		table := s.RefTable()
 		rows, _ := s.Raw(fmt.Sprintf("SELECT * FROM %s LIMIT 1", table.Name)).Query()
 		columns, _ := rows.Columns()
-		// calculate the new fields and deleted fields
+		// Calculate the new fields and deleted fields
 		addCols := findDiff(table.FieldNames, columns)
 		delCols := findDiff(columns, table.FieldNames)
 		log.Infof("added cols %v, deleted cols %v", addCols, delCols)
 
 		for _, col := range addCols {
 			f := table.GetField(col)
-			// add new fields by ALTER
+			// Add new fields by ALTER
 			sqlStr := fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s;", table.Name, f.Name, f.Type)
 			if _, err = s.Raw(sqlStr).Exec(); err != nil {
 				return
@@ -121,12 +123,13 @@ func (e *Engine) Migrate(value any) error {
 		}
 		tmp := "tmp_" + table.Name
 		fieldStr := strings.Join(table.FieldNames, ", ")
-		// create a new table and delete the old table, then renamed new table to the old table
+		// Create a new table and delete the old table, then renamed new table to the old table
 		s.Raw(fmt.Sprintf("CREATE TABLE %s AS SELECT %s from %s;", tmp, fieldStr, table.Name))
 		s.Raw(fmt.Sprintf("DROP TABLE %s;", table.Name))
 		s.Raw(fmt.Sprintf("ALTER TABLE %s RENAME TO %s;", tmp, table.Name))
 		_, err = s.Exec()
 		return
 	})
+
 	return err
 }

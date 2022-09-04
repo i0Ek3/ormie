@@ -27,12 +27,14 @@ func genBindVars(num int) string {
 	for i := 0; i < num; i++ {
 		vars = append(vars, "?")
 	}
+
 	return strings.Join(vars, ", ")
 }
 
 func _insert(values ...any) (string, []any) {
 	tableName := values[0]
 	fields := strings.Join(values[1].([]string), ",")
+
 	return fmt.Sprintf("INSERT INTO %s (%v)", tableName, fields), []any{}
 }
 
@@ -42,6 +44,7 @@ func _values(values ...any) (string, []any) {
 		sql     strings.Builder
 		vars    []any
 	)
+
 	sql.WriteString("VALUES")
 	for i, value := range values {
 		v := value.([]any)
@@ -54,12 +57,14 @@ func _values(values ...any) (string, []any) {
 		}
 		vars = append(vars, v...)
 	}
+
 	return sql.String(), vars
 }
 
 func _select(values ...any) (string, []any) {
 	tableName := values[0]
 	fields := strings.Join(values[1].([]string), ",")
+
 	return fmt.Sprintf("SELECT %v FROM %s", fields, tableName), []any{}
 }
 
@@ -69,6 +74,7 @@ func _limit(values ...any) (string, []any) {
 
 func _where(values ...any) (string, []any) {
 	desc, vars := values[0], values[1:]
+
 	return fmt.Sprintf("WHERE %s", desc), vars
 }
 
@@ -86,6 +92,7 @@ func _update(values ...any) (string, []any) {
 		keys = append(keys, k+" = ?")
 		vars = append(vars, v)
 	}
+
 	return fmt.Sprintf("UPDATE %s SET %s", tableName, strings.Join(keys, ", ")), vars
 }
 

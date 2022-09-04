@@ -8,7 +8,7 @@ import (
 
 type sqlite3 struct{}
 
-// this line used to check if *sqlite3 type implement Diablect interface
+// This line used to check if *sqlite3 type implement Diablect interface
 var _ Dialect = (*sqlite3)(nil)
 
 func init() {
@@ -41,5 +41,6 @@ func (s *sqlite3) DataTypeOf(typ reflect.Value) string {
 
 func (s *sqlite3) TableExistSQL(tableName string) (string, []any) {
 	args := []any{tableName}
+
 	return "SELECT name FROM sqlite_master WHERE type='table' and name = ?", args
 }

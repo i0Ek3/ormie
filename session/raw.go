@@ -49,7 +49,7 @@ type CommonDB interface {
 	Exec(query string, args ...any) (sql.Result, error)
 }
 
-// this line used to check if *sql.DB/*sql.Tx type implement CommonDB interface
+// This line used to check if *sql.DB/*sql.Tx type implement CommonDB interface
 var _ CommonDB = (*sql.DB)(nil)
 var _ CommonDB = (*sql.Tx)(nil)
 

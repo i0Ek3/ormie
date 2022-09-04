@@ -8,24 +8,24 @@ import (
 )
 
 type Field struct {
-	// field name
+	// Field name
 	Name string
-	// field type
+	// Field type
 	Type string
-	// restrictions
+	// Restrictions
 	Tag string
 }
 
 type Schema struct {
-	// mapped object
+	// Mapped object
 	Model any
-	// table name
+	// Table name
 	Name string
-	// all fields
+	// All fields
 	Fields []*Field
-	// all field names(columns)
+	// All field names(columns)
 	FieldNames []string
-	// record field name and Field mapping relationship
+	// Record field name and Field mapping relationship
 	fieldMap map[string]*Field
 }
 
@@ -41,6 +41,7 @@ func (schema *Schema) RecordValues(dst any) []any {
 	for _, field := range schema.Fields {
 		fieldValues = append(fieldValues, dstValue.FieldByName(field.Name).Interface())
 	}
+
 	return fieldValues
 }
 
@@ -50,7 +51,7 @@ type ITableName interface {
 
 // Parse parses any object into Schema instance
 func Parse(dst any, d dialect.Dialect) *Schema {
-	// get the instance pointed to by the pointer through Indirect()
+	// Get the instance pointed to by the pointer through Indirect()
 	modelType := reflect.Indirect(reflect.ValueOf(dst)).Type()
 	var tableName string
 	t, ok := dst.(ITableName)
@@ -66,10 +67,10 @@ func Parse(dst any, d dialect.Dialect) *Schema {
 	}
 
 	for i := 0; i < modelType.NumField(); i++ {
-		// get a specific field by subscripting
+		// Get a specific field by subscripting
 		f := modelType.Field(i)
 		if !f.Anonymous && ast.IsExported(f.Name) {
-			// convert to database support field
+			// Convert to database support field
 			field := &Field{
 				Name: f.Name,
 				Type: d.DataTypeOf(reflect.Indirect(reflect.New(f.Type))),
@@ -82,5 +83,6 @@ func Parse(dst any, d dialect.Dialect) *Schema {
 			schema.fieldMap[f.Name] = field
 		}
 	}
+
 	return schema
 }

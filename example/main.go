@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/i0Ek3/ormie"
+	"github.com/i0Ek3/ormie/engine"
 	// register sqlite3 driver, required
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -26,7 +26,7 @@ func main() {
 }
 
 func ormieTest() {
-	e, _ := ormie.NewEngine("sqlite3", "ormie.db")
+	e, _ := engine.NewEngine("sqlite3", "ormie.db")
 	defer e.Close()
 	s := e.NewSession()
 	_, _ = s.Raw("DROP TABLE IF EXISTS User;").Exec()
@@ -45,7 +45,7 @@ func sqlUsage() {
 	// Exec used to execute SQL statements
 	_, _ = db.Exec("DROP TABLE IF EXISTS User;")
 	_, _ = db.Exec("CREATE TABLE User(Name text);")
-	// placeholders ? are generally used to prevent SQL injection
+	// Placeholders ? are generally used to prevent SQL injection
 	result, err := db.Exec("INSERT INTO User(`Name`) values (?), (?)", "Tom", "Sam")
 	if err == nil {
 		affected, _ := result.RowsAffected()

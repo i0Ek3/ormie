@@ -8,6 +8,7 @@ func (s *Session) Begin() (err error) {
 		log.Error(err)
 		return
 	}
+
 	return
 }
 
@@ -16,6 +17,7 @@ func (s *Session) Commit() (err error) {
 	if err = s.tx.Commit(); err != nil {
 		log.Error(err)
 	}
+
 	return
 }
 
@@ -24,5 +26,6 @@ func (s *Session) Rollback() (err error) {
 	if err = s.tx.Rollback(); err != nil {
 		log.Error(err)
 	}
+
 	return
 }

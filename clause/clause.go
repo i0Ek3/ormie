@@ -40,5 +40,6 @@ func (c *Clause) Build(orders ...Type) (string, []any) {
 			vars = append(vars, c.sqlVars[o]...)
 		}
 	}
+
 	return strings.Join(sqls, " "), vars
 }

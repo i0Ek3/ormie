@@ -76,7 +76,10 @@ func TestEngineMigrate(t *testing.T) {
 	_, _ = s.Raw("DROP TABLE IF EXISTS User;").Exec()
 	_, _ = s.Raw("CREATE TABLE User(Name text PRIMARY KEY, XXX integer);").Exec()
 	_, _ = s.Raw("INSERT INTO User(`Name`) values (?), (?)", "Tom", "Sam").Exec()
-	engine.Migrate(&User{})
+	err := engine.Migrate(&User{})
+	if err != nil {
+		return 
+	}
 
 	rows, _ := s.Raw("SELECT * FROM User").Query()
 	columns, _ := rows.Columns()

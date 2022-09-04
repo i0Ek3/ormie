@@ -51,15 +51,15 @@ type IAfterInsert interface {
 
 func (s *Session) CallMethod(method string, value any) {
 	if s.hookGraceful {
-		// use the MethodByName to reflect the method of the object
+		// Use the MethodByName to reflect the method of the object
 		fm := reflect.ValueOf(s.RefTable().Model).MethodByName(method)
 		if value != nil {
 			fm = reflect.ValueOf(value).MethodByName(method)
 		}
-		// construct the parameter of the object
+		// Construct the parameter of the object
 		param := []reflect.Value{reflect.ValueOf(s)}
 		if fm.IsValid() {
-			// calling fm function
+			// Calling fm function
 			if v := fm.Call(param); len(v) > 0 {
 				if err, ok := v[0].Interface().(error); ok {
 					log.Error(err)

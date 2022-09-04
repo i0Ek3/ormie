@@ -4,10 +4,11 @@
 
 ## Feature
 
-- Migration
-- Chains operation
-- Hooks
-- Transaction
+- CURD for records
+- Create/Delete/Migration database table
+- Chained calls of query conditions
+- Hooks and transaction support
+- Support SQLite database
 
 ## Usage
 
